@@ -2,7 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const getCalendarEvents = async () => {
-    const url = `${process.env.NEXTCLOUD_URL}/remote.php/dav/calendars/${process.env.NEXTCLOUD_USERNAME}/beniaminpantiru%40gmail.com+%28Google+Calendar+import%29?export&accept=jcal`;
+    const url = `${process.env.NEXTCLOUD_URL}/remote.php/dav/calendars/admin/Familie%2b%2528Google%2bCalendar%2bimport%2529/?export&accept=jcal`;
 
     try {
         const response = await axios.get(url, {
@@ -18,5 +18,3 @@ const getCalendarEvents = async () => {
         console.error('Error fetching calendar data:', error.response ? error.response.data : error.message);
     }
 };
-
-getCalendarEvents();

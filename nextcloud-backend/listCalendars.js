@@ -25,32 +25,86 @@ const findCalendarURI = async () => {
             data: propfindXML
         });
 
-        parseCalendarData(response.data);
+        return parseCalendarData(response.data);
     } catch (error) {
         console.error('Error fetching calendar data:', error.response ? error.response.data : error.message);
     }
 };
 
 const parseCalendarData = (xmlData) => {
-    const parser = new xml2js.Parser({ explicitArray: false });
+    return new Promise((resolve, reject) => {
+        const parser = new xml2js.Parser({explicitArray: false});
 
-    parser.parseString(xmlData, (err, result) => {
-        if (err) {
-            console.error('Error parsing XML:', err);
-            return;
-        }
+        parser.parseString(xmlData, async (err, result) => {
+            if (err) {
+                console.error('Error parsing XML:', err);
+                return;
+            }
 
-        const responses = result['d:multistatus']['d:response'];
-        responses.forEach(response => {
-            const props = response['d:propstat']['d:prop'];
-            console.error(props);
-            // const displayName = props['d:displayname'];
-            // const resourceType = props['d:resourcetype'];
-            // if (resourceType && resourceType['cal:calendar']) {
-               //  console.log('Calendar Name:', displayName, 'URL:', response['d:href']);
-            // }
+            const responses = result['d:multistatus']['d:response'];
+            let calendars = [];
+            for (const response of responses) {
+                const href = response['d:href'];
+                const parts = href.split('/');
+                const calendarName = parts[parts.length - 2];
+
+                const calendarData = await getCalendarEvents(href);
+                if (calendarData) {
+                    calendarData['calendarName'] = calendarName;
+                    calendarData['href'] = href;
+                    calendars.push(calendarData);
+                }
+            }
+            resolve(calendars);
         });
     });
 };
 
-findCalendarURI();
+const getCalendarEvents = async (href) => {
+    const url = `${process.env.NEXTCLOUD_URL}/${href}?export&accept=jcal`;
+
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                'Authorization': `Basic ${Buffer.from(`${process.env.NEXTCLOUD_USERNAME}:${process.env.NEXTCLOUD_PASSWORD}`).toString('base64')}`,
+                'Content-Type': 'application/json'  // Assuming the 'accept=jcal' leads to a JSON content type response
+            }
+        });
+        return mapToJSObject(response.data);
+    } catch (error) {
+        console.error('Error fetching calendar data:', error.response ? error.response.data : error.message);
+    }
+};
+
+function mapToJSObject(data) {
+    let obj = {};
+    obj[data[0]] = {};
+
+    // Map the second element of the outer array
+    data[1].forEach(item => {
+        obj[data[0]][item[0]] = item[3];
+    });
+
+    // Initialize an array for the events
+    obj[data[0]]['events'] = [];
+
+    // Map the third element of the outer array
+    data[2].forEach(item => {
+        // Instead of creating a new key for each event, push it into the array
+        // Add the calendar name to each event
+        let event = item[1];
+        event['calendarName'] = data[0];
+        obj[data[0]]['events'].push(convertEventArrayToObject(event));
+    });
+
+    return obj;
+}
+
+function convertEventArrayToObject(eventArray) {
+    return eventArray.reduce((obj, item) => {
+        obj[item[0]] = item[3];
+        return obj;
+    }, {});
+}
+
+module.exports = findCalendarURI;
