@@ -1,15 +1,16 @@
-import {DatePipe, NgClass, NgFor, NgIf} from '@angular/common';
+import {DatePipe, NgClass, NgFor, NgIf, NgStyle} from '@angular/common';
 import {Component, OnInit} from '@angular/core';
 import {IonContent, IonHeader, IonTitle, IonToolbar} from '@ionic/angular/standalone';
 import {Days} from './models/days';
 import {CalendarService} from '../services/calendar-service';
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, DatePipe, NgIf, NgFor, NgClass],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, DatePipe, NgIf, NgFor, NgClass, NgStyle],
 })
 export class HomePage implements OnInit {
   currentDate = new Date();
@@ -19,34 +20,29 @@ export class HomePage implements OnInit {
 
   lastDayOfPrevMonth: number = 0;
   last5DaysOfPrevMonth: Days[] = [];
-
   dayForTheNextMonth: Days[] = [];
-
   currentMonthDays: Days[] = [];
-
   thisMonthEvents: any;
 
-  constructor(private calendarService: CalendarService) {
+  constructor(private calendarService: CalendarService,
+              private route: ActivatedRoute,
+              private router: Router) {
   }
 
   ngOnInit(): void {
-    this.initMonth();
-  }
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      if (id) {
+        let parts = id.split('-');
+        let month = Number(parts[0]);
+        let year = parts[1];
 
-  findEventsForCurrentMonth(events: any[]) {
-    let filteredEvents = events.filter(event => {
-      let eventDate = new Date(event.dtstart);
-      return eventDate.getMonth() + 1 === this.currentDate.getMonth() + 1 && eventDate.getFullYear() === this.currentDate.getFullYear();
-    }).map(value => {
-      let eventDate = new Date(value.dtstart);
-      value.day = eventDate.getDate();
-      value.month = eventDate.getMonth() + 1;
-      value.hour = eventDate.getUTCHours();
-      value.minute = eventDate.getUTCMinutes();
-      value.seconds = eventDate.getUTCSeconds();
-      return value;
+        this.currentDate.setMonth(month);
+        this.currentDate.setFullYear(year);
+      }
     });
-    return filteredEvents;
+
+    this.initMonth();
   }
 
   initMonth() {
@@ -74,42 +70,43 @@ export class HomePage implements OnInit {
     this.populateCalendarData();
   }
 
-  private populateCalendarData() {
-    let monthEvents: any[] = [];
-    this.calendarService.findCalendars().subscribe((data: any[]) => {
-      data.forEach((calendar) => {
-        const events = calendar.vcalendar.events;
-        monthEvents.push(...this.findEventsForCurrentMonth(events));
-      })
-
-      this.thisMonthEvents = monthEvents.reduce((acc, event) => {
-        // Use the day as the key
-        let key = event.day;
-
-        // If this key doesn't exist in the accumulator, create it
-        if (!acc[key]) {
-          acc[key] = [];
-        }
-
-        // Push the current event into the array for this day
-        acc[key].push(event);
-
-        // Return the updated accumulator
-        return acc;
-      }, {});
-      console.error(this.thisMonthEvents);
-    })
+  findEventsForCurrentMonth(events: any[]) {
+    let filteredEvents = events.filter(event => {
+      let eventDate = new Date(event.dtstart);
+      return eventDate.getMonth() + 1 === this.currentDate.getMonth() + 1 && eventDate.getFullYear() === this.currentDate.getFullYear();
+    }).map(value => {
+      let eventDate = new Date(value.dtstart);
+      value.day = eventDate.getDate();
+      value.month = eventDate.getMonth() + 1;
+      value.hour = eventDate.getUTCHours().toString().padStart(2, '0');
+      value.minute = eventDate.getMinutes().toString().padStart(2, '0');
+      value.seconds = eventDate.getSeconds().toString().padStart(2, '0');
+      return value;
+    });
+    return filteredEvents;
   }
 
   goToMonth(monthNo: number) {
     const newDate = new Date(this.currentDate.getTime()); // Clone the current date to avoid mutation
+    let pathParam = '';
     if (monthNo == 1) {
-      newDate.setMonth(newDate.getMonth() + 1);
+      if (newDate.getMonth() == 11) { // If current month is December
+        newDate.setFullYear(newDate.getFullYear() + 1); // Go to the next year
+        newDate.setMonth(0); // Set month to January
+      } else {
+        newDate.setMonth(newDate.getMonth() + 1); // Go to the next month
+      }
+      pathParam = `${Number(newDate.getMonth())}-${newDate.getFullYear()}`;
     } else if (monthNo == -1) {
-      newDate.setMonth(newDate.getMonth() - 1);
+      if (newDate.getMonth() == 0) { // If current month is January
+        newDate.setFullYear(newDate.getFullYear() - 1); // Go to the previous year
+        newDate.setMonth(11); // Set month to December
+      } else {
+        newDate.setMonth(newDate.getMonth() - 1); // Go to the previous month
+      }
+      pathParam = `${Number(newDate.getMonth())}-${newDate.getFullYear()}`;
     }
-    this.currentDate = newDate;
-    this.initMonth();
+    this.router.navigate(['/home', pathParam]);
   }
 
   getDaysInMonth(date: Date): number {
@@ -206,4 +203,62 @@ export class HomePage implements OnInit {
 
     return daysArray;
   }
+
+  goToToday() {
+    this.currentDate = new Date(); // Set currentDate to the current date
+    const month = this.currentDate.getMonth(); // Get the current month
+    const year = this.currentDate.getFullYear(); // Get the current year
+    const pathParam = `${month}-${year}`; // Create the path parameter
+    this.router.navigate(['/home', pathParam]); // Navigate to the current month and year
+  }
+
+  private populateCalendarData() {
+    let monthEvents: any[] = [];
+    let calendarData = localStorage.getItem('calendars');
+    let lastUpdated = localStorage.getItem('lastUpdated');
+
+    let oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+    if (calendarData && calendarData != 'null' &&lastUpdated && new Date(lastUpdated) > oneDayAgo) {
+      var data = JSON.parse(calendarData);
+      this.computeDataForCalendar(data, monthEvents);
+    } else {
+      this.getHttpCalendarData(monthEvents);
+    }
+  }
+
+  private getHttpCalendarData(monthEvents: any[]) {
+    this.calendarService.findCalendars(localStorage.getItem('serverAddress')!, localStorage.getItem('username')!, localStorage.getItem('password')!)
+      .subscribe((data: any[]) => {
+        localStorage.setItem('calendars', JSON.stringify(data));
+        localStorage.setItem('lastUpdated', new Date().toISOString());
+        this.computeDataForCalendar(data, monthEvents);
+      })
+  }
+
+  private computeDataForCalendar(data: any[], monthEvents: any[]) {
+    data.forEach((calendar) => {
+      const events = calendar.vcalendar.events;
+      monthEvents.push(...this.findEventsForCurrentMonth(events));
+    })
+
+    this.thisMonthEvents = monthEvents.reduce((acc, event) => {
+      // Use the day as the key
+      let key = event.day;
+
+      // If this key doesn't exist in the accumulator, create it
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+
+      // Push the current event into the array for this day
+      acc[key].push(event);
+
+      // Return the updated accumulator
+      return acc;
+    }, {});
+  }
+
+  protected readonly Number = Number;
 }

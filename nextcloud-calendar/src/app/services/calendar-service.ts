@@ -1,6 +1,6 @@
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Injectable} from "@angular/core";
-import {map, Observable} from "rxjs";
+import {Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +19,8 @@ export class CalendarService {
     return this.http.get(url, {headers: headers, responseType: 'text'});
   }
 
-  findCalendars(): Observable<any> {
-    return this.http.get('http://localhost:3000/calendars/');
+  findCalendars(serverUrl: string, username: string, password: string): Observable<any> {
+    const body = {serverUrl, username, password};
+    return this.http.post('http://localhost:3000/calendars/', body);
   }
 }

@@ -4,11 +4,16 @@ const listCalendars = require('./listCalendars.js');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
-app.get('/calendars', async (req, res) => {
+app.post('/calendars', async (req, res) => {
     try {
-        const calendars = await listCalendars();
-        console.error(calendars);
+        console.error(req.body);
+        const serverUrl = req.body.serverUrl;
+        const username = req.body.username;
+        const password = req.body.password;
+
+        const calendars = await listCalendars(serverUrl, username, password);
         res.json(calendars);
     } catch (err) {
         res.status(500).send(err.toString());

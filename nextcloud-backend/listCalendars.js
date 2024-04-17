@@ -1,9 +1,8 @@
 const axios = require('axios');
 const xml2js = require('xml2js');
-require('dotenv').config();
 
-const findCalendarURI = async () => {
-    const url = `${process.env.NEXTCLOUD_URL}/remote.php/dav/calendars/${process.env.NEXTCLOUD_USERNAME}/`;
+const findCalendarURI = async (serverUrl, username, password) => {
+    const url = `${serverUrl}/remote.php/dav/calendars/${username}/`;
 
     const propfindXML = `<?xml version="1.0"?>
         <d:propfind xmlns:d="DAV:" xmlns:cs="http://calendarserver.org/ns/">
@@ -18,20 +17,20 @@ const findCalendarURI = async () => {
             method: 'propfind',
             url: url,
             headers: {
-                'Authorization': `Basic ${Buffer.from(`${process.env.NEXTCLOUD_USERNAME}:${process.env.NEXTCLOUD_PASSWORD}`).toString('base64')}`,
+                'Authorization': `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
                 'Content-Type': 'application/xml',
                 'Depth': '1'
             },
             data: propfindXML
         });
 
-        return parseCalendarData(response.data);
+        return parseCalendarData(response.data, serverUrl, username, password);
     } catch (error) {
         console.error('Error fetching calendar data:', error.response ? error.response.data : error.message);
     }
 };
 
-const parseCalendarData = (xmlData) => {
+const parseCalendarData = (xmlData, serverUrl, username, password) => {
     return new Promise((resolve, reject) => {
         const parser = new xml2js.Parser({explicitArray: false});
 
@@ -48,7 +47,7 @@ const parseCalendarData = (xmlData) => {
                 const parts = href.split('/');
                 const calendarName = parts[parts.length - 2];
 
-                const calendarData = await getCalendarEvents(href);
+                const calendarData = await getCalendarEvents(href, serverUrl, username, password);
                 if (calendarData) {
                     calendarData['calendarName'] = calendarName;
                     calendarData['href'] = href;
@@ -60,13 +59,13 @@ const parseCalendarData = (xmlData) => {
     });
 };
 
-const getCalendarEvents = async (href) => {
-    const url = `${process.env.NEXTCLOUD_URL}/${href}?export&accept=jcal`;
+const getCalendarEvents = async (href, serverUrl, username, password) => {
+    const url = `${serverUrl}/${href}?export&accept=jcal`;
 
     try {
         const response = await axios.get(url, {
             headers: {
-                'Authorization': `Basic ${Buffer.from(`${process.env.NEXTCLOUD_USERNAME}:${process.env.NEXTCLOUD_PASSWORD}`).toString('base64')}`,
+                'Authorization': `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
                 'Content-Type': 'application/json'  // Assuming the 'accept=jcal' leads to a JSON content type response
             }
         });
