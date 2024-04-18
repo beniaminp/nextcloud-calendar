@@ -218,7 +218,8 @@ export class HomePage implements OnInit {
   async openEventModal(event: CalEvents) {
     const modal = await this.modalController.create({
       component: EventComponent, // Your component here
-      componentProps:  { event: event } // If you want to pass any data to your component
+      componentProps:  { event: event },
+      cssClass: 'modal-custom-class'
     });
 
     return await modal.present();

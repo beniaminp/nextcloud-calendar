@@ -1,6 +1,21 @@
-<div class="flex justify-between items-center p-4 bg-gray-200">
-  <h5 class="text-lg font-bold">{{event.summary}}</h5>
-  <button type="button" class="text-lg font-bold" aria-label="Close" (click)="dismissModal()">
-    <span aria-hidden="true">&times;</span>
-  </button>
+<div class="bg-white shadow-lg rounded-lg p-4 max-w-sm w-full mx-auto">
+  <div class="flex items-center justify-between">
+    <h2 class="text-lg font-semibold text-gray-900">{{ event.summary }}</h2>
+  </div>
+  <div class="mt-2">
+    <p class="text-gray-600">{{ event.dtstart | date: 'short' }}</p>
+    <p class="text-gray-500">The day before at 23:30</p>
+  </div>
+  <div class="mt-4 mb-4">
+    <p class="text-sm text-gray-700">
+      {{ event.description }}
+    </p>
+  </div>
+  <div class="text-gray-500 text-sm">
+    <span>Created by: Beniamin Pantiru</span>
+  </div>
+  <div class="flex items-center justify-between mt-4">
+    <button class="text-blue-500 hover:text-blue-600 font-medium" (click)="openEditEventModal()">Edit</button>
+    <button class="text-red-500 hover:text-red-600 font-medium">Delete</button>
+  </div>
 </div>

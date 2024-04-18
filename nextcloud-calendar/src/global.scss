@@ -28,3 +28,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.modal-custom-class {
+  --height: auto;
+  --max-height: 90%;
+  --width: auto;
+  --max-width: 90%;
+  --border-radius: 20px;
+  --background: white;
+  --backdrop-opacity: 0.3;
+}

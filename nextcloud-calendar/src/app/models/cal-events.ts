@@ -15,6 +15,7 @@ export class CalEvents {
   hour?: string;
   minute?: string;
   seconds?: string;
+  description: string;
 
   constructor() {
     this.dtstamp = '';
@@ -29,5 +30,6 @@ export class CalEvents {
     this['x-nextcloud-bc-field-type'] = '';
     this['x-nextcloud-bc-unknown-year'] = '';
     this.day = 0;
+    this.description = '';
   }
 }

@@ -1,11 +1,15 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ModalController} from "@ionic/angular/standalone";
 import {CalEvents} from "../models/cal-events";
+import {DatePipe} from "@angular/common";
+import {EditEventComponent} from "./edit-event/edit-event.component";
 
 @Component({
   selector: 'app-event',
   templateUrl: './event.component.html',
   styleUrls: ['./event.component.scss'],
+  standalone: true,
+  imports: [DatePipe]
 })
 export class EventComponent implements OnInit {
   @Input()
@@ -16,6 +20,17 @@ export class EventComponent implements OnInit {
 
   ngOnInit() {
     console.error('Event:', this.event);
+  }
+
+  async openEditEventModal() {
+    this.dismissModal();
+    const modal = await this.modalController.create({
+      component: EditEventComponent, // Your component here
+      componentProps:  { event: this.event },
+      cssClass: 'modal-custom-class'
+    });
+
+    return await modal.present();
   }
 
   dismissModal() {
