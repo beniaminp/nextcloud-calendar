@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ModalController} from "@ionic/angular/standalone";
 import {CalEvents} from "../models/cal-events";
-import {DatePipe} from "@angular/common";
+import {DatePipe, NgIf} from "@angular/common";
 import {EditEventComponent} from "./edit-event/edit-event.component";
 
 @Component({
@@ -9,7 +9,7 @@ import {EditEventComponent} from "./edit-event/edit-event.component";
   templateUrl: './event.component.html',
   styleUrls: ['./event.component.scss'],
   standalone: true,
-  imports: [DatePipe]
+  imports: [DatePipe, NgIf]
 })
 export class EventComponent implements OnInit {
   @Input()

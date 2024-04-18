@@ -7,13 +7,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div class="lg:flex lg:h-full lg:flex-col">
+  <div class="lg:flex lg:h-full lg:flex-col" #swipeContainer>
     <header class="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
       <h1 class="text-base font-semibold leading-6 text-gray-900">
         <time [dateTime]="currentDate">{{ currentDate | date: 'MMMM yyyy' }}</time>
@@ -215,7 +209,8 @@
                       <p
                         [ngClass]="{'flex-auto truncate group-hover:text-indigo-600 font-bold text-ellipsis overflow-hidden': true,
                          'bg-slate-200': day.dayNo < currentDate.getDate(),
-                          'bg-slate-400 rounded-md':event.hour == '00' && event.minute == '00'}">
+                          'bg-slate-400 rounded-md':event.hour == '00' && event.minute == '00',
+                          'bg-emerald-300': event.description == 'Public holiday'}">
                         {{ event.summary }}
                       </p>
                     </a>
@@ -264,18 +259,19 @@
                     [ngClass]="{'flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white': currentDate.getDate() == day.dayNo}">{{ day.dayNo }}
               </time>
               <ng-container *ngIf="thisMonthEvents && thisMonthEvents[day.dayNo]">
-                <ol>
+                <ol class="max-width-fillwebkit">
                   <li *ngFor="let event of thisMonthEvents[day.dayNo]">
                     <a (click)="openEventModal(event)" class="group flex cursor-pointer">
-                      <time [dateTime]="event.dtstart"
-                            *ngIf="event.hour != '00' && event.minute != '00'"
+                      <!--<time [dateTime]="event.dtstart"
+                            *ngIf="event.hour != '00'"
                             class="mr-2 flex-none text-gray-500 group-hover:text-indigo-600 xl:block">
                         {{ event.hour }}:{{ event.minute }}
-                      </time>
+                      </time>-->
                       <p
-                        [ngClass]="{'flex-auto group-hover:text-indigo-600 truncate text-ellipsis overflow-hidden': true,
+                        [ngClass]="{'group-hover:text-indigo-600 truncate text-ellipsis overflow-hidden': true,
                          'font-bold' : day.dayNo >= event.day, 'bg-slate-200': day.dayNo < currentDate.getDate(),
-                          'bg-slate-400 rounded-md':event.hour == '00' && event.minute == '00'}">
+                          'bg-slate-400 rounded-md':event.hour == '00' && event.minute == '00',
+                          'bg-emerald-300': event.description == 'Public holiday'}">
                         {{ event.summary }}
                       </p>
                     </a>

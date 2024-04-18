@@ -1,11 +1,19 @@
 import {DatePipe, NgClass, NgFor, NgIf, NgStyle} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
-import {IonContent, IonHeader, IonTitle, IonToolbar, ModalController} from '@ionic/angular/standalone';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {
+  GestureController,
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  ModalController
+} from '@ionic/angular/standalone';
 import {Days} from './models/days';
 import {CalendarService} from '../services/calendar-service';
 import {ActivatedRoute, Router} from "@angular/router";
 import {CalEvents} from "../models/cal-events";
 import {EventComponent} from "../event/event.component";
+import {Gesture, LoadingController} from "@ionic/angular";
 
 @Component({
   selector: 'app-home',
@@ -14,7 +22,10 @@ import {EventComponent} from "../event/event.component";
   standalone: true,
   imports: [IonHeader, IonToolbar, IonTitle, IonContent, DatePipe, NgIf, NgFor, NgClass, NgStyle],
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, AfterViewInit {
+  // @ts-ignore
+  @ViewChild('swipeContainer') swipeContainer: ElementRef;
+
   currentDate = new Date();
   showDropMenu = false;
   noOfDaysInMonth: number = 0;
@@ -29,7 +40,9 @@ export class HomePage implements OnInit {
   constructor(private calendarService: CalendarService,
               private route: ActivatedRoute,
               private router: Router,
-              private modalController: ModalController) {
+              private modalController: ModalController,
+              private gestureCtrl: GestureController,
+              private loadingController: LoadingController) {
   }
 
   ngOnInit(): void {
@@ -46,6 +59,10 @@ export class HomePage implements OnInit {
     });
 
     this.initMonth();
+  }
+
+  ngAfterViewInit(): void {
+    this.setupSwipeGesture();
   }
 
   initMonth() {
@@ -215,14 +232,52 @@ export class HomePage implements OnInit {
     this.router.navigate(['/home', pathParam]); // Navigate to the current month and year
   }
 
+  setupSwipeGesture() {
+    const gesture: Gesture = this.gestureCtrl.create({
+      el: this.swipeContainer.nativeElement,
+      gestureName: 'swipe',
+      onStart: detail => console.log('Swipe start', detail),
+      onMove: detail => console.log('Moving', detail),
+      onEnd: detail => {
+        console.log('End', detail);
+        if (detail.deltaX < -150) {
+          // Swipe left
+          console.log('Swipe left');
+          this.goToMonth(1);
+          // Implement your logic here, for example:
+          // this.goToNextPage();
+        } else if (detail.deltaX > 150) {
+          // Swipe right
+          console.log('Swipe right');
+          this.goToMonth(-1);
+          // Implement your logic here, for example:
+          // this.goBack();
+        }
+      }
+    });
+
+    gesture.enable();
+  }
+
   async openEventModal(event: CalEvents) {
     const modal = await this.modalController.create({
       component: EventComponent, // Your component here
-      componentProps:  { event: event },
+      componentProps: {event: event},
       cssClass: 'modal-custom-class'
     });
 
     return await modal.present();
+  }
+
+  async presentLoading(message: string) {
+    const loading = await this.loadingController.create({
+      message: message,
+    });
+    await loading.present();
+  }
+
+  async dismissLoading() {
+    await this.loadingController.dismiss();
   }
 
   private populateCalendarData() {
@@ -236,17 +291,23 @@ export class HomePage implements OnInit {
     if (calendarData && calendarData != 'null' && lastUpdated && new Date(lastUpdated) > oneDayAgo) {
       var data = JSON.parse(calendarData);
       this.computeDataForCalendar(data, monthEvents);
+      // this.getHttpCalendarData(monthEvents);
     } else {
       this.getHttpCalendarData(monthEvents);
     }
   }
 
   private getHttpCalendarData(monthEvents: any[]) {
+    this.presentLoading('Please wait, loading calendar data...');
     this.calendarService.findCalendars(localStorage.getItem('serverAddress')!, localStorage.getItem('username')!, localStorage.getItem('password')!)
       .subscribe((data: any[]) => {
         localStorage.setItem('calendars', JSON.stringify(data));
         localStorage.setItem('lastUpdated', new Date().toISOString());
         this.computeDataForCalendar(data, monthEvents);
+        this.dismissLoading();
+      }, (err) => {
+        console.error(err);
+        this.dismissLoading();
       })
   }
 

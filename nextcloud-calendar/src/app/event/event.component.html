@@ -3,8 +3,12 @@
     <h2 class="text-lg font-semibold text-gray-900">{{ event.summary }}</h2>
   </div>
   <div class="mt-2">
-    <p class="text-gray-600">{{ event.dtstart | date: 'short' }}</p>
-    <p class="text-gray-500">The day before at 23:30</p>
+    <p class="text-gray-600">{{ event.dtstart | date: 'mediumDate' }} - {{ event.dtstart | date: 'shortTime' }}
+      <ng-container *ngIf="event.dtstart != event.dtend">
+      to {{ event.dtend | date: 'shortTime' }}
+      </ng-container>
+    </p>
+    <!--<p class="text-gray-500">The day before at 23:30</p>-->
   </div>
   <div class="mt-4 mb-4">
     <p class="text-sm text-gray-700">
