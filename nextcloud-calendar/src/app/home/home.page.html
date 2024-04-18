@@ -206,7 +206,7 @@
               <ng-container *ngIf="thisMonthEvents && thisMonthEvents[day.dayNo]">
                 <ol class="mt-2 text-left">
                   <li *ngFor="let event of thisMonthEvents[day.dayNo]">
-                    <a href="#" class="group flex">
+                    <a (click)="openEventModal(event)" class="group flex cursor-pointer">
                       <time [dateTime]="event.dtstart"
                             *ngIf="event.hour != '00' && event.minute != '00'"
                             class="mr-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block">
@@ -214,7 +214,7 @@
                       </time>
                       <p
                         [ngClass]="{'flex-auto truncate group-hover:text-indigo-600 font-bold text-ellipsis overflow-hidden': true,
-                         'opacity-50': day.dayNo < currentDate.getDate(),
+                         'bg-slate-200': day.dayNo < currentDate.getDate(),
                           'bg-slate-400 rounded-md':event.hour == '00' && event.minute == '00'}">
                         {{ event.summary }}
                       </p>
@@ -266,7 +266,7 @@
               <ng-container *ngIf="thisMonthEvents && thisMonthEvents[day.dayNo]">
                 <ol>
                   <li *ngFor="let event of thisMonthEvents[day.dayNo]">
-                    <a href="#" class="group flex">
+                    <a (click)="openEventModal(event)" class="group flex cursor-pointer">
                       <time [dateTime]="event.dtstart"
                             *ngIf="event.hour != '00' && event.minute != '00'"
                             class="mr-2 flex-none text-gray-500 group-hover:text-indigo-600 xl:block">
@@ -274,7 +274,7 @@
                       </time>
                       <p
                         [ngClass]="{'flex-auto group-hover:text-indigo-600 truncate text-ellipsis overflow-hidden': true,
-                         'font-bold' : day.dayNo >= event.day, 'opacity-50': day.dayNo < currentDate.getDate(),
+                         'font-bold' : day.dayNo >= event.day, 'bg-slate-200': day.dayNo < currentDate.getDate(),
                           'bg-slate-400 rounded-md':event.hour == '00' && event.minute == '00'}">
                         {{ event.summary }}
                       </p>

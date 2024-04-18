@@ -1,9 +1,11 @@
 import {DatePipe, NgClass, NgFor, NgIf, NgStyle} from '@angular/common';
 import {Component, OnInit} from '@angular/core';
-import {IonContent, IonHeader, IonTitle, IonToolbar} from '@ionic/angular/standalone';
+import {IonContent, IonHeader, IonTitle, IonToolbar, ModalController} from '@ionic/angular/standalone';
 import {Days} from './models/days';
 import {CalendarService} from '../services/calendar-service';
 import {ActivatedRoute, Router} from "@angular/router";
+import {CalEvents} from "../models/cal-events";
+import {EventComponent} from "../event/event.component";
 
 @Component({
   selector: 'app-home',
@@ -26,7 +28,8 @@ export class HomePage implements OnInit {
 
   constructor(private calendarService: CalendarService,
               private route: ActivatedRoute,
-              private router: Router) {
+              private router: Router,
+              private modalController: ModalController) {
   }
 
   ngOnInit(): void {
@@ -70,7 +73,7 @@ export class HomePage implements OnInit {
     this.populateCalendarData();
   }
 
-  findEventsForCurrentMonth(events: any[]) {
+  findEventsForCurrentMonth(events: CalEvents[]) {
     let filteredEvents = events.filter(event => {
       let eventDate = new Date(event.dtstart);
       return eventDate.getMonth() + 1 === this.currentDate.getMonth() + 1 && eventDate.getFullYear() === this.currentDate.getFullYear();
@@ -212,6 +215,15 @@ export class HomePage implements OnInit {
     this.router.navigate(['/home', pathParam]); // Navigate to the current month and year
   }
 
+  async openEventModal(event: CalEvents) {
+    const modal = await this.modalController.create({
+      component: EventComponent, // Your component here
+      componentProps:  { event: event } // If you want to pass any data to your component
+    });
+
+    return await modal.present();
+  }
+
   private populateCalendarData() {
     let monthEvents: any[] = [];
     let calendarData = localStorage.getItem('calendars');
@@ -220,7 +232,7 @@ export class HomePage implements OnInit {
     let oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
-    if (calendarData && calendarData != 'null' &&lastUpdated && new Date(lastUpdated) > oneDayAgo) {
+    if (calendarData && calendarData != 'null' && lastUpdated && new Date(lastUpdated) > oneDayAgo) {
       var data = JSON.parse(calendarData);
       this.computeDataForCalendar(data, monthEvents);
     } else {
@@ -239,11 +251,11 @@ export class HomePage implements OnInit {
 
   private computeDataForCalendar(data: any[], monthEvents: any[]) {
     data.forEach((calendar) => {
-      const events = calendar.vcalendar.events;
+      const events: CalEvents[] = calendar.vcalendar.events;
       monthEvents.push(...this.findEventsForCurrentMonth(events));
     })
 
-    this.thisMonthEvents = monthEvents.reduce((acc, event) => {
+    this.thisMonthEvents = monthEvents.reduce((acc, event: CalEvents) => {
       // Use the day as the key
       let key = event.day;
 
