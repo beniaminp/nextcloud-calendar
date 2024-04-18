@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
-};
+  URL: 'https://nextcloud-calendar-server.beniaminpantiru.workers.dev/',
+  production: true,
+}
