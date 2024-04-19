@@ -14,6 +14,10 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/auth.component').then((m) => m.AuthComponent)
   },
   {
+    path: 'schedule/:startingDay/:startingMonth/:startingYear',
+    loadComponent: () => import('./home/schedule-view/schedule-view.component').then((m) => m.ScheduleViewComponent)
+  },
+  {
     path: '',
     redirectTo: 'auth',
     pathMatch: 'full',

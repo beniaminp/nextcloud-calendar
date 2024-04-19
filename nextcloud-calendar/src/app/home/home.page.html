@@ -254,6 +254,7 @@
 
           <ng-container *ngFor="let day of currentMonthDays">
             <button type="button"
+                    (click)="goToScheduleView(day.dayDate)"
                     class="flex flex-col bg-white text-gray-900 hover:bg-gray-100 ">
               <time [dateTime]="day.dayDate" class="ml-auto"
                     [ngClass]="{'flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white': currentDate.getDate() == day.dayNo}">{{ day.dayNo }}
@@ -261,7 +262,7 @@
               <ng-container *ngIf="thisMonthEvents && thisMonthEvents[day.dayNo]">
                 <ol class="max-width-fillwebkit">
                   <li *ngFor="let event of thisMonthEvents[day.dayNo]">
-                    <a (click)="openEventModal(event)" class="group flex cursor-pointer">
+                    <a class="group flex cursor-pointer">
                       <!--<time [dateTime]="event.dtstart"
                             *ngIf="event.hour != '00'"
                             class="mr-2 flex-none text-gray-500 group-hover:text-indigo-600 xl:block">

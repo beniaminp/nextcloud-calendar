@@ -9,12 +9,12 @@ import {
   ModalController
 } from '@ionic/angular/standalone';
 import {Days} from './models/days';
-import {CalendarServiceHttp} from '../services/calendar-service.http';
 import {ActivatedRoute, Router} from "@angular/router";
 import {CalEvents} from "../models/cal-events";
 import {EventComponent} from "../event/event.component";
-import {Gesture, LoadingController} from "@ionic/angular";
+import {Gesture} from "@ionic/angular";
 import {CalendarService} from "../services/calendar.service";
+import {LoadingService} from "../services/loading.service";
 
 @Component({
   selector: 'app-home',
@@ -42,7 +42,7 @@ export class HomePage implements OnInit, AfterViewInit {
               private router: Router,
               private modalController: ModalController,
               private gestureCtrl: GestureController,
-              private loadingController: LoadingController,
+              private loadingService: LoadingService,
               private calendarService: CalendarService) {
   }
 
@@ -88,14 +88,14 @@ export class HomePage implements OnInit, AfterViewInit {
 
     this.currentMonthDays = this.calendarService.populateDaysArray(this.currentDate);
 
-    await this.presentLoading('Please wait, loading calendar data...');
+    await this.loadingService.presentLoading('Please wait, loading calendar data...');
     this.calendarService.populateCalendarData().subscribe({
       next: (value: any) => {
         this.thisMonthEvents = value;
-        this.dismissLoading();
+        this.loadingService.dismissLoading();
       }, error: err => {
         console.error(err);
-        this.dismissLoading();
+        this.loadingService.dismissLoading();
       }
     });
   }
@@ -158,8 +158,8 @@ export class HomePage implements OnInit, AfterViewInit {
     gesture.enable();
   }
 
-  goToScheduleView(dayNo: number) {
-
+  goToScheduleView(date: Date) {
+    this.router.navigate(['/schedule', date.getDate(), date.getMonth(), date.getFullYear()]);
   }
 
   async openEventModal(event: CalEvents) {
@@ -170,17 +170,6 @@ export class HomePage implements OnInit, AfterViewInit {
     });
 
     return await modal.present();
-  }
-
-  async presentLoading(message: string) {
-    const loading = await this.loadingController.create({
-      message: message,
-    });
-    await loading.present();
-  }
-
-  async dismissLoading() {
-    await this.loadingController.dismiss();
   }
 
   protected readonly Number = Number;

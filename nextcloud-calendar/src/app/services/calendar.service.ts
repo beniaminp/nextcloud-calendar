@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Days} from "../home/models/days";
 import {CalendarServiceHttp} from "./calendar-service.http";
 import {CalEvents} from "../models/cal-events";
-import {Observable, tap} from "rxjs";
+import {Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -51,7 +51,6 @@ export class CalendarService {
     });
   }
 
-
   computeDataForCalendar(data: any[], monthEvents: any[], currentDate: Date): any {
     data.forEach((calendar) => {
       const events: CalEvents[] = calendar.vcalendar.events;
@@ -76,7 +75,7 @@ export class CalendarService {
   }
 
   findEventsForCurrentMonth(events: CalEvents[], currentDate: Date) {
-    let filteredEvents = events.filter(event => {
+    return events.filter(event => {
       let eventDate = new Date(event.dtstart);
       return eventDate.getMonth() + 1 === currentDate.getMonth() + 1 && eventDate.getFullYear() === currentDate.getFullYear();
     }).map(value => {
@@ -88,7 +87,6 @@ export class CalendarService {
       value.seconds = eventDate.getSeconds().toString().padStart(2, '0');
       return value;
     });
-    return filteredEvents;
   }
 
   getDaysInMonth(date: Date): number {
