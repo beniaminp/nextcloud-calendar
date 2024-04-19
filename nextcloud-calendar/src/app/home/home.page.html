@@ -228,7 +228,7 @@
         </div>
         <div class="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
           <!--
-            Always include: "flex h-7rem flex-col py-2 px-3 hover:bg-gray-100 "
+            Always include: "flex flex-col py-2 px-3 hover:bg-gray-100 "
             Is current month, include: "bg-white"
             Is not current month, include: "bg-gray-50"
             Is selected or is today, include: "font-semibold"
@@ -240,7 +240,7 @@
 
           <ng-container *ngFor="let daysOfPrevMonth of last5DaysOfPrevMonth">
             <button type="button"
-                    class="flex h-7rem flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 ">
+                    class="flex flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 ">
               <!--
                 Always include: "ml-auto"
                 Is selected, include: "flex h-6 w-6 items-center justify-center rounded-full"
@@ -254,7 +254,7 @@
 
           <ng-container *ngFor="let day of currentMonthDays">
             <button type="button"
-                    class="flex h-7rem flex-col bg-white px-1 py-2 text-gray-900 hover:bg-gray-100 ">
+                    class="flex flex-col bg-white text-gray-900 hover:bg-gray-100 ">
               <time [dateTime]="day.dayDate" class="ml-auto"
                     [ngClass]="{'flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white': currentDate.getDate() == day.dayNo}">{{ day.dayNo }}
               </time>
@@ -268,9 +268,9 @@
                         {{ event.hour }}:{{ event.minute }}
                       </time>-->
                       <p
-                        [ngClass]="{'group-hover:text-indigo-600 truncate text-ellipsis overflow-hidden': true,
+                        [ngClass]="{'group-hover:text-indigo-600 truncate text-ellipsis overflow-hidden text-xs': true,
                          'font-bold' : day.dayNo >= event.day, 'bg-slate-200': day.dayNo < currentDate.getDate(),
-                          'bg-slate-400 rounded-md':event.hour == '00' && event.minute == '00',
+                          'bg-slate-400 rounded-md text-white':event.hour == '00' && event.minute == '00',
                           'bg-emerald-300': event.description == 'Public holiday'}">
                         {{ event.summary }}
                       </p>
@@ -283,7 +283,7 @@
 
           <ng-container *ngFor="let day of dayForTheNextMonth">
             <button type="button"
-                    class="flex h-7rem flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 ">
+                    class="flex flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 ">
               <time [dateTime]="day.dayDate" class="ml-auto">{{ day.dayNo }}</time>
               <span class="sr-only">0 events</span>
             </button>

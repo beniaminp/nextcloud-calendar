@@ -6,7 +6,7 @@ import {environment} from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
-export class CalendarService {
+export class CalendarServiceHttp {
   constructor(private http: HttpClient) {
 
   }
