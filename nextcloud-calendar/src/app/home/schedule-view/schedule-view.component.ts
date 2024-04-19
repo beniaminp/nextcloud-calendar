@@ -1,4 +1,4 @@
-import {AfterContentInit, AfterViewChecked, Component, OnInit, Renderer2} from '@angular/core';
+import {AfterViewChecked, Component, OnInit, Renderer2} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {LoadingService} from "../../services/loading.service";
 import {CalendarService} from "../../services/calendar.service";

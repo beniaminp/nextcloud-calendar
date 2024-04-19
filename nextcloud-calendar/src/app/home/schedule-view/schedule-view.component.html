@@ -1,3 +1,14 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      Schedule View
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content>
   <div class="bg-gray-200 p-4">
     <!-- Calendar Heading -->
@@ -14,8 +25,8 @@
              [attr.data-year]="dayEvent.year"
              [attr.data-startingDate]="startingDate.toDateString()"
              [ngClass]="{'p-3 rounded-lg shadow': true,
-          'bg-white': dayEvent.day !== startingDate.getDate() + 1 || dayEvent.month !== startingDate.getMonth() + 1 || dayEvent.year !== startingDate.getFullYear(),
-           'bg-teal-300 selectedDay': dayEvent.day === startingDate.getDate() + 1 &&
+          'bg-white': dayEvent.day !== startingDate.getDate() || dayEvent.month !== startingDate.getMonth() + 1 || dayEvent.year !== startingDate.getFullYear(),
+           'bg-teal-300 selectedDay': dayEvent.day === startingDate.getDate() &&
                                 dayEvent.month === startingDate.getMonth() + 1 &&
                                 dayEvent.year === startingDate.getFullYear()}">
           <div class="text-sm font-medium text-gray-800">{{ dayEvent.date | date:'mediumDate' }}</div>
