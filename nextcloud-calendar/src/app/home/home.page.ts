@@ -38,8 +38,7 @@ export class HomePage implements OnInit, AfterViewInit {
   currentMonthDays: Days[] = [];
   thisMonthEvents: any;
 
-  constructor(private calendarHttpService: CalendarServiceHttp,
-              private route: ActivatedRoute,
+  constructor(private route: ActivatedRoute,
               private router: Router,
               private modalController: ModalController,
               private gestureCtrl: GestureController,
@@ -67,7 +66,7 @@ export class HomePage implements OnInit, AfterViewInit {
     this.setupSwipeGesture();
   }
 
-  initMonth() {
+  async initMonth() {
     this.noOfDaysInMonth = this.calendarService.getDaysInMonth(this.currentDate);
     this.lastDayOfPrevMonth = this.calendarService.getLastDayOfPreviousMonth(this.currentDate);
     this.lastDayOfMonth = this.calendarService.getLastDayOfMonth(this.currentDate);
@@ -89,9 +88,9 @@ export class HomePage implements OnInit, AfterViewInit {
 
     this.currentMonthDays = this.calendarService.populateDaysArray(this.currentDate);
 
-    this.presentLoading('Please wait, loading calendar data...');
+    await this.presentLoading('Please wait, loading calendar data...');
     this.calendarService.populateCalendarData().subscribe({
-      next: (value: any[]) => {
+      next: (value: any) => {
         this.thisMonthEvents = value;
         this.dismissLoading();
       }, error: err => {
