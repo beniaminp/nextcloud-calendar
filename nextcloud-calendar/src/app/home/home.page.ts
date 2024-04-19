@@ -1,9 +1,9 @@
 import {DatePipe, NgClass, NgFor, NgIf, NgStyle} from '@angular/common';
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {
-  GestureController,
+  GestureController, IonButtons,
   IonContent,
-  IonHeader,
+  IonHeader, IonMenuButton,
   IonTitle,
   IonToolbar,
   ModalController
@@ -21,7 +21,7 @@ import {LoadingService} from "../services/loading.service";
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, DatePipe, NgIf, NgFor, NgClass, NgStyle],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, DatePipe, NgIf, NgFor, NgClass, NgStyle, IonButtons, IonMenuButton],
 })
 export class HomePage implements OnInit, AfterViewInit {
   // @ts-ignore

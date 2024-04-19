@@ -69,4 +69,7 @@ export class ScheduleViewComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  goBack() {
+    history.back();
+  }
 }
