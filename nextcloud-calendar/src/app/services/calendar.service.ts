@@ -3,6 +3,7 @@ import {Days} from "../home/models/days";
 import {CalendarServiceHttp} from "./calendar-service.http";
 import {CalEvents} from "../models/cal-events";
 import {Observable} from "rxjs";
+import {EventByDate} from "../models/event-by-date";
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,52 @@ export class CalendarService {
   constructor(private calendarHttpService: CalendarServiceHttp) {
   }
 
-  populateCalendarData(): Observable<any> {
+  getAllCalendarEventsByDayAndMonth(currentDate: Date): Observable<any> {
+    let monthEvents: any[] = [];
+    let calendarData = localStorage.getItem('calendars');
+    let lastUpdated = localStorage.getItem('lastUpdated');
+
+    let oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+    if (calendarData && calendarData != 'null' && lastUpdated && new Date(lastUpdated) > oneDayAgo) {
+      var data = JSON.parse(calendarData);
+      return new Observable(subscriber => {
+        subscriber.next(this.computeAllDataForCalendar(data));
+        subscriber.complete();
+      });
+    } else {
+      return this.getHttpCalendarData(monthEvents, currentDate);
+    }
+  }
+
+  private computeAllDataForCalendar(data: any[]): EventByDate[] {
+    let eventsByDate: { day: number, month: number, year: number, date: Date, events: CalEvents[] }[] = [];
+
+    data.forEach((calendar) => {
+      const events: CalEvents[] = calendar.vcalendar.events;
+      events.forEach(event => {
+        let eventDate = new Date(event.dtstart);
+        let day = eventDate.getDate();
+        let month = eventDate.getMonth() + 1;
+        let year = eventDate.getFullYear();
+
+        let dateObj: EventByDate | undefined = eventsByDate.find(obj => obj.day === day && obj.month === month && obj.year === year);
+
+        if (dateObj) {
+          dateObj.events.push(event);
+        } else {
+          eventsByDate.push(new EventByDate(day, month, year, eventDate, [event]));
+        }
+      });
+    });
+
+    eventsByDate.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    return eventsByDate;
+  }
+
+  getCalendarDataForCurrentMonth(): Observable<any> {
     let monthEvents: any[] = [];
     let calendarData = localStorage.getItem('calendars');
     let lastUpdated = localStorage.getItem('lastUpdated');

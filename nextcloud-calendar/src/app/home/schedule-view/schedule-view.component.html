@@ -1,63 +1,40 @@
-<div class="bg-gray-200 p-4">
-  <!-- Calendar Heading -->
-  <div class="flex justify-between items-center mb-4">
-    <div class="text-lg font-semibold">May</div>
-    <div class="text-sm">19</div>
-  </div>
-
-  <!-- Calendar Events -->
-  <div class="space-y-2">
-    <!-- Single Event -->
-    <div class="bg-white p-3 rounded-lg shadow">
-      <div class="text-sm font-medium text-gray-800">Sat 11</div>
-      <div class="mt-1">
-        <div class="text-xs text-gray-600">4 en 5 jarige Feyenoord Voetjeballer - 4 en...</div>
-        <div class="text-xs text-gray-500">09:45 – 10:30 at Topsportcentrum Rotterdam</div>
-      </div>
+<ion-content>
+  <div class="bg-gray-200 p-4">
+    <!-- Calendar Heading -->
+    <div class="flex justify-between items-center mb-4">
+      <div class="text-lg font-semibold">{{ startingDate | date: 'mediumDate' }}</div>
     </div>
 
-    <!-- Mother's Day -->
-    <div class="bg-teal-300 p-3 rounded-lg shadow">
-      <div class="text-sm font-medium text-white">Sun 12</div>
-      <div class="mt-1">
-        <div class="text-xs font-medium text-white">Mother's Day</div>
-      </div>
+    <!-- Calendar Events -->
+    <div class="space-y-2">
+      <!-- Single Event -->
+      <ng-container *ngFor="let dayEvent of allEvents | async">
+        <div [attr.data-day]="dayEvent.day"
+             [attr.data-month]="dayEvent.month"
+             [attr.data-year]="dayEvent.year"
+             [attr.data-startingDate]="startingDate.toDateString()"
+             [ngClass]="{'p-3 rounded-lg shadow': true,
+          'bg-white': dayEvent.day !== startingDate.getDate() + 1 || dayEvent.month !== startingDate.getMonth() + 1 || dayEvent.year !== startingDate.getFullYear(),
+           'bg-teal-300 selectedDay': dayEvent.day === startingDate.getDate() + 1 &&
+                                dayEvent.month === startingDate.getMonth() + 1 &&
+                                dayEvent.year === startingDate.getFullYear()}">
+          <div class="text-sm font-medium text-gray-800">{{ dayEvent.date | date:'mediumDate' }}</div>
+          <div class="mt-1">
+            <div class="text-xs text-gray-600"
+                 *ngFor="let event of dayEvent.events">{{ event.dtstart | date: 'mediumTime' }} {{ event.summary }}
+            </div>
+          </div>
+        </div>
+      </ng-container>
     </div>
 
-    <!-- Multiple Event on a day -->
-    <div class="bg-white p-3 rounded-lg shadow">
-      <div class="text-sm font-medium text-gray-800">Mon 13</div>
-      <div class="mt-1 space-y-1">
-        <div class="text-xs text-gray-600">Vitamina D adulti</div>
-        <div class="text-xs text-gray-600">Vitamina D adulti</div>
-      </div>
-    </div>
-
-    <!-- Another Single Event -->
-    <div class="bg-white p-3 rounded-lg shadow">
-      <div class="text-sm font-medium text-gray-800">Tue 14</div>
-      <div class="mt-1">
-        <div class="text-xs text-gray-600">SDC Rotterdam Tech Market 2024</div>
-        <div class="text-xs text-gray-500">16:00 – 20:00 at Swisscom Devops Center, B...</div>
-      </div>
-    </div>
-
-    <!-- Multiple Day Event -->
-    <div class="bg-white p-3 rounded-lg shadow">
-      <div class="text-sm font-medium text-gray-800">Thu 16 - Fri 17</div>
-      <div class="mt-1">
-        <div class="text-xs text-gray-600">Curs Clean.RE (Day 1/2)</div>
-        <div class="text-xs text-gray-600">Curs Clean.RE (Day 2/2)</div>
-      </div>
+    <!-- Add Event Button -->
+    <div class="mt-4 flex justify-center">
+      <button class="bg-blue-500 text-white p-2 rounded-full shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+      </button>
     </div>
   </div>
-
-  <!-- Add Event Button -->
-  <div class="mt-4 flex justify-center">
-    <button class="bg-blue-500 text-white p-2 rounded-full shadow-lg">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-      </svg>
-    </button>
-  </div>
-</div>
+</ion-content>

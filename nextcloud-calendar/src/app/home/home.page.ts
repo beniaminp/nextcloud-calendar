@@ -89,7 +89,7 @@ export class HomePage implements OnInit, AfterViewInit {
     this.currentMonthDays = this.calendarService.populateDaysArray(this.currentDate);
 
     await this.loadingService.presentLoading('Please wait, loading calendar data...');
-    this.calendarService.populateCalendarData().subscribe({
+    this.calendarService.getCalendarDataForCurrentMonth().subscribe({
       next: (value: any) => {
         this.thisMonthEvents = value;
         this.loadingService.dismissLoading();
